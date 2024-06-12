@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getString
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import org.mifos.mobile.R
 import org.mifos.mobile.core.ui.component.MifosErrorComponent
 import org.mifos.mobile.core.ui.component.MifosOutlinedTextField
@@ -45,11 +48,12 @@ fun RegistrationVerificationScreen(
     navigateBack: () -> Unit,
     finishActivity: ()->Unit)
 {
-    val uiState by viewModel.registrationUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val uiState by viewModel.registrationVerificationUiState.collectAsStateWithLifecycle()
 
     RegistrationVerificationContent(uiState = uiState,
         verifyUser = { token, id -> viewModel.verifyUser(token, id) },
+        retryConnection = { token, id -> viewModel.verifyUser(token, id) },
         finishActivity = finishActivity)
 }
 
@@ -58,6 +62,7 @@ fun RegistrationVerificationScreen(
     fun RegistrationVerificationContent(
     uiState: RegistrationUiState,
     verifyUser: (authenticationToken: String, requestID: String) -> Unit,
+    retryConnection: (authenticationToken: String, requestID: String) -> Unit,
     finishActivity: () -> Unit
     ) {
 
@@ -74,26 +79,26 @@ fun RegistrationVerificationScreen(
         when (uiState) {
 
             RegistrationUiState.Initial -> {
-
                 Column(modifier = Modifier.fillMaxSize()) {
 
                     MifosOutlinedTextField(
                         value = requestID,
                         onValueChange = { requestID = it },
                         label = R.string.request_id,
-                        supportingText = ""
+                        supportingText = "",
+                        keyboardType = KeyboardType.Number
                     )
 
                     MifosOutlinedTextField(
                         value = authenticationToken,
                         onValueChange = { authenticationToken = it },
                         label = R.string.authentication_token,
-                        supportingText = ""
+                        supportingText = "",
+                        keyboardType = KeyboardType.Number
                     )
 
                     Button(
                         onClick = {
-                            Toast.makeText(context, "Button Clicked", Toast.LENGTH_SHORT).show()
                             verifyUser(authenticationToken.toString(), requestID.toString())
                         },
                         Modifier
@@ -111,17 +116,17 @@ fun RegistrationVerificationScreen(
                 }
             }
 
-            is RegistrationUiState.Error -> {
-                MifosErrorComponent(
-                    isNetworkConnected = Network.isConnected(context),
-                    isEmptyData = false,
-                    isRetryEnabled = false
-                )
+             is RegistrationUiState.Error -> {
+                Toast.makeText(context, uiState.exception, Toast.LENGTH_SHORT).show()
+                 MifosErrorComponent(
+                     isNetworkConnected = Network.isConnected(context),
+                     isEmptyData = false,
+                     isRetryEnabled = true,
+                     onRetry = { retryConnection(authenticationToken.toString(), requestID.toString()) }
+                 )
             }
 
             RegistrationUiState.Loading -> {
-                Toast.makeText(context, "Loading", Toast.LENGTH_SHORT).show()
-
                 MifosProgressIndicator(
                     modifier = Modifier
                         .fillMaxSize()
@@ -130,14 +135,9 @@ fun RegistrationVerificationScreen(
                 )
             }
 
-            is RegistrationUiState.Success -> {
-
+             RegistrationUiState.Success -> {
                 context.startActivity(Intent(context, LoginActivity::class.java))
-                Toast.makeText(
-                    context,
-                    getString(context, R.string.verified),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, getString(context, R.string.verified),Toast.LENGTH_SHORT).show()
                 finishActivity()
             }
         }
@@ -161,7 +161,8 @@ private fun RegistrationVerificationScreenPreview(
     MifosMobileTheme {
         RegistrationVerificationContent(
             uiState = registrationUiState,
-            verifyUser = {_, _ -> /* Do nothing or handle dummy verification */ },
+            verifyUser = {_, _ ->  },
+            retryConnection = {_, _ -> },
             finishActivity = {}
         )
     }
