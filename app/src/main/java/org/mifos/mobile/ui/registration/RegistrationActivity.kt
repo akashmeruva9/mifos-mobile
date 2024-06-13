@@ -18,8 +18,4 @@ class RegistrationActivity : BaseActivity() {
         replaceFragment(RegistrationFragment.newInstance(), false, R.id.container)
     }
 
-    override fun onBackPressed() {
-       super.onBackPressed()
-    }
-
 }

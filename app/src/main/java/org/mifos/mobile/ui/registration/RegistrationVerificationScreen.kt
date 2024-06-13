@@ -64,8 +64,7 @@ fun RegistrationVerificationScreen(
     val context = LocalContext.current
     var showConfirmationDialog by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = true)
-    {
+    BackHandler(enabled = true) {
         showConfirmationDialog = true
     }
 
@@ -152,6 +151,8 @@ fun RegistrationVerificationScreen(
 @Composable
 fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, requestID: String) -> Unit) {
 
+    val context = LocalContext.current
+
     var requestID by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
@@ -165,7 +166,7 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
 
         var temp = true
         if (requestID.text.isEmpty()) {
-            requestIDError = true;
+            requestIDError = true
             temp = false
         }
         if (authenticationToken.text.isEmpty()) {
@@ -202,7 +203,7 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
                 requestIDError = false
             },
             label = R.string.request_id,
-            supportingText = "Request ID cannot be empty",
+            supportingText = getString(context, R.string.empty_requestid) ,
             error = requestIDError,
             keyboardType = KeyboardType.Number,
             trailingIcon = {
@@ -219,7 +220,7 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
                 authenticationTokenError = false
             },
             label = R.string.authentication_token,
-            supportingText = "Authentication Token cannot be empty",
+            supportingText = getString(context, R.string.empty_authentication_token),
             error = authenticationTokenError,
             keyboardType = KeyboardType.Number,
             trailingIcon = {
