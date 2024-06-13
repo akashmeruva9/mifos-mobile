@@ -19,7 +19,6 @@ import org.mifos.mobile.ui.login.LoginActivity
 @AndroidEntryPoint
 class RegistrationVerificationFragment : BaseFragment() {
 
-    private val registrationViewModel: RegistrationViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,7 +29,8 @@ class RegistrationVerificationFragment : BaseFragment() {
                 navigateBack = { activity?.finish() } ,
                 onVerified = {
                     startActivity(Intent(activity, LoginActivity::class.java))
-                    activity?.finish() }
+                    activity?.finish()
+                }
             )
         }
     }

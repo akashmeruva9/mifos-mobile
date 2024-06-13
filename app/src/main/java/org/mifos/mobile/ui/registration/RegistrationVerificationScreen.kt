@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -49,6 +50,7 @@ import org.mifos.mobile.core.ui.component.MFScaffold
 import org.mifos.mobile.core.ui.component.MifosErrorComponent
 import org.mifos.mobile.core.ui.component.MifosOutlinedTextField
 import org.mifos.mobile.core.ui.component.MifosProgressIndicator
+import org.mifos.mobile.core.ui.component.MifosProgressIndicatorOverlay
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
 import org.mifos.mobile.utils.Network
 import org.mifos.mobile.utils.RegistrationUiState
@@ -62,7 +64,7 @@ fun RegistrationVerificationScreen(
     val context = LocalContext.current
     var showConfirmationDialog by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = true )
+    BackHandler(enabled = true)
     {
         showConfirmationDialog = true
     }
@@ -73,14 +75,16 @@ fun RegistrationVerificationScreen(
             title = { Text(text = getString(context, R.string.dialog_cancel_registration_title)) },
             text = { Text(text = getString(context, R.string.dialog_cancel_registration_message)) },
             confirmButton = {
-                TextButton(onClick = { showConfirmationDialog = false
-                    navigateBack.invoke() }) {
-                    Text(text = "Yes")
+                TextButton(onClick = {
+                    showConfirmationDialog = false
+                    navigateBack.invoke()
+                }) {
+                    Text(text = getString(context, R.string.yes))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmationDialog = false }) {
-                    Text(text = "No")
+                    Text(text = getString(context, R.string.no))
                 }
             }
         )
@@ -93,77 +97,60 @@ fun RegistrationVerificationScreen(
         uiState = uiState,
         verifyUser = { token, id -> viewModel.verifyUser(token, id) },
         onVerified = onVerified,
-        navigateBack =  { showConfirmationDialog = true }
+        navigateBack = { showConfirmationDialog = true }
     )
 }
 
 
 @Composable
 fun RegistrationVerificationScreen(
-uiState: RegistrationUiState,
-verifyUser: (authenticationToken: String, requestID: String) -> Unit,
-onVerified: () -> Unit,
-navigateBack: ( ) -> Unit
+    uiState: RegistrationUiState,
+    verifyUser: (authenticationToken: String, requestID: String) -> Unit,
+    onVerified: () -> Unit,
+    navigateBack: () -> Unit
 ) {
     val context = LocalContext.current
 
     MFScaffold(
         topBarTitleResId = R.string.register,
-        navigateBack = navigateBack  ,
-        scaffoldContent = { contentPadding->
+        navigateBack = navigateBack,
+        scaffoldContent = { contentPadding ->
 
-        Column(modifier = Modifier
-            .padding(contentPadding)
-            .fillMaxSize()) {
-
-            Image(
-                painterResource(R.drawable.mifos_logo),
-                contentDescription = "",
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.Center,
+            Box(
                 modifier = Modifier
-                    .padding(dimensionResource(id = R.dimen.Mifos_DesignSystem_Spacing_screenHorizontalMargin))
-                    .height(dimensionResource(id = R.dimen.Mifos_DesignSystem_Size_LogoImageSize))
-                    .fillMaxWidth()
-            )
+                    .padding(contentPadding)
+                    .fillMaxSize()
+            ) {
 
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp))
+                RegistrationVerificationContent(verifyUser)
 
-            when (uiState) {
+                when (uiState) {
 
-                RegistrationUiState.Initial -> {
-                    RegistrationVerificationContent(verifyUser)
-                }
+                    RegistrationUiState.Initial -> Unit
 
-                is RegistrationUiState.Error -> {
-                    Toast.makeText(context, uiState.exception, Toast.LENGTH_SHORT).show()
-                    RegistrationVerificationContent(verifyUser)
-                }
+                    is RegistrationUiState.Error -> {
+                        Toast.makeText(context, uiState.exception, Toast.LENGTH_SHORT).show()
+                    }
 
-                RegistrationUiState.Loading -> {
-                    MifosProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(10.dp)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
-                    )
-                }
+                    RegistrationUiState.Loading -> {
+                        MifosProgressIndicatorOverlay()
+                    }
 
-                RegistrationUiState.Success -> {
-                    Toast.makeText(context, getString(context, R.string.verified), Toast.LENGTH_SHORT).show()
-                    onVerified()
+                    RegistrationUiState.Success -> {
+                        Toast.makeText(
+                            context,
+                            getString(context, R.string.verified),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        onVerified()
+                    }
                 }
             }
-        }
-    })
+        })
 }
 
 @Composable
-fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, requestID: String) -> Unit)
-{
-    val context = LocalContext.current
+fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, requestID: String) -> Unit) {
 
     var requestID by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -186,17 +173,34 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
             temp = false
         }
 
-        if( !temp)
-            Toast.makeText(context, "Please fix all the errors!", Toast.LENGTH_SHORT).show()
         return temp
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
 
+        Image(
+            painter = painterResource(R.drawable.mifos_logo),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            alignment = Alignment.Center,
+            modifier = Modifier
+                .padding(dimensionResource(id = R.dimen.Mifos_DesignSystem_Spacing_screenHorizontalMargin))
+                .height(dimensionResource(id = R.dimen.Mifos_DesignSystem_Size_LogoImageSize))
+                .fillMaxWidth()
+        )
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+        )
+
         MifosOutlinedTextField(
             value = requestID,
-            onValueChange = { requestID = it
-                            requestIDError = false },
+            onValueChange = {
+                requestID = it
+                requestIDError = false
+            },
             label = R.string.request_id,
             supportingText = "Request ID cannot be empty",
             error = requestIDError,
@@ -210,8 +214,10 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
 
         MifosOutlinedTextField(
             value = authenticationToken,
-            onValueChange = { authenticationToken = it
-                            authenticationTokenError = false},
+            onValueChange = {
+                authenticationToken = it
+                authenticationTokenError = false
+            },
             label = R.string.authentication_token,
             supportingText = "Authentication Token cannot be empty",
             error = authenticationTokenError,
@@ -225,12 +231,12 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
 
         Button(
             onClick = {
-                if(validateInput())
+                if (validateInput())
                     verifyUser(authenticationToken.toString(), requestID.toString())
             },
             Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 4.dp),
+                .padding(start = 12.dp, end = 16.dp, top = 4.dp),
             contentPadding = PaddingValues(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isSystemInDarkTheme()) Color(0xFF9bb1e3)
@@ -243,7 +249,8 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
 }
 
 
-class RegistrationVerificationScreenPreviewProvider : PreviewParameterProvider<RegistrationUiState> {
+class RegistrationVerificationScreenPreviewProvider :
+    PreviewParameterProvider<RegistrationUiState> {
     override val values: Sequence<RegistrationUiState>
         get() = sequenceOf(
             RegistrationUiState.Initial,
@@ -256,12 +263,12 @@ class RegistrationVerificationScreenPreviewProvider : PreviewParameterProvider<R
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 private fun RegistrationVerificationScreenPreview(
-    @PreviewParameter(RegistrationVerificationScreenPreviewProvider::class) registrationUiState : RegistrationUiState
+    @PreviewParameter(RegistrationVerificationScreenPreviewProvider::class) registrationUiState: RegistrationUiState
 ) {
     MifosMobileTheme {
         RegistrationVerificationScreen(
             uiState = registrationUiState,
-            verifyUser = {_, _ ->  },
+            verifyUser = { _, _ -> },
             onVerified = {},
             navigateBack = { }
         )
