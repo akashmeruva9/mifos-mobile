@@ -237,7 +237,7 @@ fun RegistrationVerificationContent(verifyUser: (authenticationToken: String, re
             },
             Modifier
                 .fillMaxWidth()
-                .padding(start = 12.dp, end = 16.dp, top = 4.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp),
             contentPadding = PaddingValues(12.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isSystemInDarkTheme()) Color(0xFF9bb1e3)
