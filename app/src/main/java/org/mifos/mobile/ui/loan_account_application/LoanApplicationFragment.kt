@@ -4,23 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
+import org.mifos.mobile.core.common.Constants.LOAN_STATE
+import org.mifos.mobile.core.common.utils.DateHelper
+import org.mifos.mobile.core.model.entity.accounts.loan.LoanWithAssociations
+import org.mifos.mobile.core.model.entity.payload.LoansPayload
 import org.mifos.mobile.core.ui.component.mifosComposeView
-import org.mifos.mobile.core.ui.theme.MifosMobileTheme
-import org.mifos.mobile.models.accounts.loan.LoanAccount
-import org.mifos.mobile.models.accounts.loan.LoanWithAssociations
-import org.mifos.mobile.models.payload.LoansPayload
 import org.mifos.mobile.ui.activities.base.BaseActivity
-import org.mifos.mobile.ui.enums.LoanState
-import org.mifos.mobile.ui.loan_review.ReviewLoanApplicationFragment.Companion.newInstance
+import org.mifos.mobile.core.model.enums.LoanState
+import org.mifos.mobile.feature.loan.loan_account_application.LoanApplicationScreen
+import org.mifos.mobile.feature.loan.loan_account_application.LoanApplicationViewModel
 import org.mifos.mobile.ui.fragments.base.BaseFragment
 import org.mifos.mobile.utils.*
-import org.mifos.mobile.utils.ParcelableAndSerializableUtils.getCheckedParcelable
-import org.mifos.mobile.utils.ParcelableAndSerializableUtils.getCheckedSerializable
+import org.mifos.mobile.core.common.utils.ParcelableAndSerializableUtils.getCheckedParcelable
+import org.mifos.mobile.core.common.utils.ParcelableAndSerializableUtils.getCheckedSerializable
+import org.mifos.mobile.ui.loan_review.ReviewLoanApplicationFragment
 
 /**
  * Created by Rajan Maurya on 06/03/17.
@@ -35,9 +35,11 @@ class LoanApplicationFragment : BaseFragment() {
 
         (activity as? BaseActivity)?.hideToolbar()
         if (arguments != null) {
-            viewModel.loanState = arguments?.getCheckedSerializable(LoanState::class.java, Constants.LOAN_STATE) as? LoanState ?: LoanState.CREATE
-            if (viewModel.loanState == LoanState.UPDATE) {
-                viewModel.loanWithAssociations = arguments?.getCheckedParcelable(LoanWithAssociations::class.java, Constants.LOAN_ACCOUNT)
+            viewModel.loanState = arguments?.getCheckedSerializable(LoanState::class.java, LOAN_STATE) as? LoanState
+                ?: LoanState.CREATE
+            if (viewModel.loanState == org.mifos.mobile.core.model.enums.LoanState.UPDATE) {
+                viewModel.loanWithAssociations = arguments?.getCheckedParcelable(
+                    LoanWithAssociations::class.java, org.mifos.mobile.core.common.Constants.LOAN_ACCOUNT)
             }
         }
     }
@@ -83,7 +85,7 @@ class LoanApplicationFragment : BaseFragment() {
         }
 
         (activity as BaseActivity?)?.replaceFragment(
-            newInstance(
+            ReviewLoanApplicationFragment.newInstance(
                 viewModel.loanState,
                 loansPayload,
                 getString(R.string.string_and_string, getString(R.string.new_loan_application) + " ", viewModel.loanApplicationScreenData.value.clientName ?: ""),
@@ -116,7 +118,7 @@ class LoanApplicationFragment : BaseFragment() {
         }
 
         (activity as BaseActivity?)?.replaceFragment(
-            newInstance(
+            ReviewLoanApplicationFragment.newInstance(
                 viewModel.loanState,
                 loansPayload,
                 viewModel.loanWithAssociations?.id?.toLong(),
@@ -139,7 +141,7 @@ class LoanApplicationFragment : BaseFragment() {
         fun newInstance(loanState: LoanState?): LoanApplicationFragment {
             val fragment = LoanApplicationFragment()
             val args = Bundle()
-            args.putSerializable(Constants.LOAN_STATE, loanState)
+            args.putSerializable(org.mifos.mobile.core.common.Constants.LOAN_STATE, loanState)
             fragment.arguments = args
             return fragment
         }
@@ -152,13 +154,13 @@ class LoanApplicationFragment : BaseFragment() {
          * @return Instance of [LoanApplicationFragment]
          */
         fun newInstance(
-            loanState: LoanState?,
+            loanState: org.mifos.mobile.core.model.enums.LoanState?,
             loanWithAssociations: LoanWithAssociations?,
         ): LoanApplicationFragment {
             val fragment = LoanApplicationFragment()
             val args = Bundle()
-            args.putSerializable(Constants.LOAN_STATE, loanState)
-            args.putParcelable(Constants.LOAN_ACCOUNT, loanWithAssociations)
+            args.putSerializable(org.mifos.mobile.core.common.Constants.LOAN_STATE, loanState)
+            args.putParcelable(org.mifos.mobile.core.common.Constants.LOAN_ACCOUNT, loanWithAssociations)
             fragment.arguments = args
             return fragment
         }

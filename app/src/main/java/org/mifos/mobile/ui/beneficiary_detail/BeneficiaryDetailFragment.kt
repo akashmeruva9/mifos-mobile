@@ -1,6 +1,5 @@
 package org.mifos.mobile.ui.beneficiary_detail;
 
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,13 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
+import org.mifos.mobile.core.common.Constants
 import org.mifos.mobile.core.ui.component.mifosComposeView
-import org.mifos.mobile.models.beneficiary.Beneficiary
 import org.mifos.mobile.ui.activities.base.BaseActivity
-import org.mifos.mobile.ui.enums.BeneficiaryState
-import org.mifos.mobile.ui.fragments.BeneficiaryApplicationFragment
 import org.mifos.mobile.ui.fragments.base.BaseFragment
-import org.mifos.mobile.utils.Constants
+import org.mifos.mobile.core.model.entity.beneficiary.Beneficiary
+import org.mifos.mobile.core.model.enums.BeneficiaryState
+import org.mifos.mobile.feature.beneficiary.beneficiary_detail.BeneficiaryDetailScreen
+import org.mifos.mobile.feature.beneficiary.beneficiary_detail.BeneficiaryDetailViewModel
 
 @AndroidEntryPoint
 class BeneficiaryDetailFragment : BaseFragment() {
@@ -45,7 +45,7 @@ class BeneficiaryDetailFragment : BaseFragment() {
 
     private fun updateBeneficiaryClicked() {
         (activity as BaseActivity?)?.replaceFragment(
-            BeneficiaryApplicationFragment.newInstance(
+            org.mifos.mobile.ui.beneficiary_application.BeneficiaryApplicationComposeFragment.newInstance(
                 BeneficiaryState.UPDATE,
                 viewModel.getBeneficiary()
             ),

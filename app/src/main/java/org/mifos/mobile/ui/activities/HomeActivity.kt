@@ -26,16 +26,15 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
-import org.mifos.mobile.api.local.PreferencesHelper
 import org.mifos.mobile.databinding.ActivityHomeBinding
 import org.mifos.mobile.databinding.NavDrawerHeaderBinding
-import org.mifos.mobile.models.client.Client
 import org.mifos.mobile.ui.about.AboutUsActivity
 import org.mifos.mobile.ui.activities.base.BaseActivity
+import org.mifos.mobile.ui.beneficiary_list.BeneficiaryListComposeFragment
+import org.mifos.mobile.ui.client_accounts.ClientAccountsComposeFragment
 import org.mifos.mobile.ui.client_charge.ClientChargeComposeFragment
-import org.mifos.mobile.ui.enums.AccountType
-import org.mifos.mobile.ui.enums.ChargeType
-import org.mifos.mobile.ui.fragments.*
+import org.mifos.mobile.core.model.enums.AccountType
+import org.mifos.mobile.core.model.enums.ChargeType
 import org.mifos.mobile.ui.getThemeAttributeColor
 import org.mifos.mobile.ui.help.HelpActivity
 import org.mifos.mobile.ui.home.HomeOldFragment
@@ -43,15 +42,19 @@ import org.mifos.mobile.ui.login.LoginActivity
 import org.mifos.mobile.ui.third_party_transfer.ThirdPartyTransferComposeFragment
 import org.mifos.mobile.ui.notification.NotificationFragment
 import org.mifos.mobile.ui.recent_transactions.RecentTransactionsComposeFragment
-import org.mifos.mobile.utils.Constants
+import org.mifos.mobile.ui.transfer_process.TransferProcessComposeFragment
+import org.mifos.mobile.core.datastore.PreferencesHelper
+import org.mifos.mobile.core.model.entity.client.Client
 import org.mifos.mobile.utils.TextDrawable
 import org.mifos.mobile.utils.Toaster
 import org.mifos.mobile.utils.UserDetailUiState
 import org.mifos.mobile.utils.fcm.RegistrationIntentService
 import org.mifos.mobile.ui.user_profile.UserDetailViewModel
 import org.mifos.mobile.ui.user_profile.UserProfileActivity
-import org.mifos.mobile.utils.ParcelableAndSerializableUtils.getCheckedParcelable
+import org.mifos.mobile.core.common.utils.ParcelableAndSerializableUtils.getCheckedParcelable
 import javax.inject.Inject
+import org.mifos.mobile.ui.settings.SettingsActivity
+
 
 /**
  * @author Vishwajeet
@@ -101,7 +104,7 @@ class HomeActivity :
             viewModel.userImage
             showUserImage(null)
         } else {
-            client = savedInstanceState.getCheckedParcelable(Client::class.java, Constants.USER_DETAILS)
+            client = savedInstanceState.getCheckedParcelable(Client::class.java, org.mifos.mobile.core.common.Constants.USER_DETAILS)
             viewModel.setUserProfile(preferencesHelper?.userProfileImage)
             showUserDetails(client)
         }
@@ -134,7 +137,7 @@ class HomeActivity :
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(Constants.USER_DETAILS, client)
+        outState.putParcelable(org.mifos.mobile.core.common.Constants.USER_DETAILS, client)
     }
 
     override fun onPause() {
@@ -148,7 +151,7 @@ class HomeActivity :
         if (!isReceiverRegistered) {
             LocalBroadcastManager.getInstance(this).registerReceiver(
                 registerReceiver,
-                IntentFilter(Constants.REGISTER_ON_SERVER),
+                IntentFilter(org.mifos.mobile.core.common.Constants.REGISTER_ON_SERVER),
             )
             isReceiverRegistered = true
         }
@@ -178,7 +181,7 @@ class HomeActivity :
             R.id.item_accounts -> {
                 hideToolbarElevation()
                 replaceFragment(
-                    ClientAccountsFragment.newInstance(AccountType.SAVINGS),
+                    ClientAccountsComposeFragment.newInstance(AccountType.SAVINGS),
                     true,
                     R.id.container,
                 )
@@ -203,7 +206,7 @@ class HomeActivity :
             )
 
             R.id.item_beneficiaries -> replaceFragment(
-                BeneficiaryListFragment.newInstance(),
+                BeneficiaryListComposeFragment.newInstance(),
                 true,
                 R.id.container,
             )
@@ -387,8 +390,7 @@ class HomeActivity :
             doubleBackToExitPressedOnce = true
             Toaster.show(findViewById(android.R.id.content), getString(R.string.exit_message))
             Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
-        } else if (fragment is TransferProcessFragment) {
-            fragment.cancelTransferProcess()
+        } else if (fragment is TransferProcessComposeFragment) {
         }
 
         if (stackCount() != 0) {
@@ -405,7 +407,7 @@ class HomeActivity :
                     setNavigationViewSelectedItem(R.id.item_home)
                 }
 
-                is ClientAccountsFragment -> {
+                is ClientAccountsComposeFragment -> {
                     hideToolbarElevation()
                     setNavigationViewSelectedItem(R.id.item_accounts)
                 }
@@ -422,7 +424,7 @@ class HomeActivity :
                     setNavigationViewSelectedItem(R.id.item_third_party_transfer)
                 }
 
-                is BeneficiaryListFragment -> {
+                is BeneficiaryListComposeFragment -> {
                     setNavigationViewSelectedItem(R.id.item_beneficiaries)
                 }
             }
@@ -455,7 +457,7 @@ class HomeActivity :
 
     private val registerReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val token = intent.getStringExtra(Constants.TOKEN)
+            val token = intent.getStringExtra(org.mifos.mobile.core.common.Constants.TOKEN)
             token?.let { viewModel.registerNotification(it) }
         }
     }

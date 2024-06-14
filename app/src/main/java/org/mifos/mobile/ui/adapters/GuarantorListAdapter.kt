@@ -4,9 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import org.mifos.mobile.core.model.entity.guarantor.GuarantorPayload
 import org.mifos.mobile.databinding.RowGuarantorBinding
-import org.mifos.mobile.models.guarantor.GuarantorPayload
-import org.mifos.mobile.utils.DateHelper.getDateAsString
+import org.mifos.mobile.core.common.utils.DateHelper.getDateAsString
 
 /*
 * Created by saksham on 24/July/2018

@@ -36,14 +36,15 @@ import org.mifos.mobile.ui.beneficiary.presentation.BeneficiaryAddOptionsFragmen
 import org.mifos.mobile.ui.enums.TransferType
 import org.mifos.mobile.ui.fragments.TransferProcessFragment
 import org.mifos.mobile.ui.fragments.base.BaseFragment
-import org.mifos.mobile.utils.Constants
-import org.mifos.mobile.utils.DateHelper
-import org.mifos.mobile.utils.Network
-import org.mifos.mobile.utils.ParcelableAndSerializableUtils.getCheckedArrayListFromParcelable
-import org.mifos.mobile.utils.ParcelableAndSerializableUtils.getCheckedParcelable
+import org.mifos.mobile.ui.transfer_process.TransferProcessComposeFragment
+import org.mifos.mobile.core.common.Constants
+import org.mifos.mobile.core.common.utils.DateHelper
+import org.mifos.mobile.core.common.Network
+import org.mifos.mobile.core.common.utils.ParcelableAndSerializableUtils.getCheckedArrayListFromParcelable
+import org.mifos.mobile.core.common.utils.ParcelableAndSerializableUtils.getCheckedParcelable
 import org.mifos.mobile.utils.ThirdPartyTransferUiState
 import org.mifos.mobile.utils.Toaster
-import org.mifos.mobile.utils.Utils
+import org.mifos.mobile.core.common.utils.Utils
 import org.mifos.mobile.utils.getTodayFormatted
 
 /**
@@ -207,7 +208,7 @@ class ThirdPartyTransferFragment : BaseFragment(), OnItemSelectedListener {
     }
 
     /**
-     * Checks validation of `etRemark` and then opens [TransferProcessFragment] for
+     * Checks validation of `etRemark` and then opens [TransferProcessComposeFragment] for
      * initiating the transfer
      */
     private fun reviewTransfer() {
@@ -244,7 +245,7 @@ class ThirdPartyTransferFragment : BaseFragment(), OnItemSelectedListener {
         transferPayload.fromAccountNumber = fromAccountOption?.accountNo
         transferPayload.toAccountNumber = beneficiaryAccountOption?.accountNo
         (activity as BaseActivity?)?.replaceFragment(
-            TransferProcessFragment.newInstance(
+            TransferProcessComposeFragment.newInstance(
                 transferPayload,
                 TransferType.TPT,
             ),

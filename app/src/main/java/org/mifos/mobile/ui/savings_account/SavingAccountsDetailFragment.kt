@@ -12,24 +12,23 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
-import org.mifos.mobile.api.local.PreferencesHelper
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
-import org.mifos.mobile.models.accounts.savings.SavingsWithAssociations
 import org.mifos.mobile.ui.activities.SavingsAccountContainerActivity
 import org.mifos.mobile.ui.activities.base.BaseActivity
 import org.mifos.mobile.ui.client_charge.ClientChargeComposeFragment
-import org.mifos.mobile.ui.enums.AccountType
-import org.mifos.mobile.ui.enums.ChargeType
-import org.mifos.mobile.ui.enums.SavingsAccountState
-import org.mifos.mobile.ui.fragments.QrCodeDisplayFragment
-import org.mifos.mobile.ui.fragments.SavingAccountsTransactionFragment
+import org.mifos.mobile.ui.savings_account_transaction.SavingAccountsTransactionComposeFragment
 import org.mifos.mobile.ui.savings_account_application.SavingsAccountApplicationFragment
 import org.mifos.mobile.ui.savings_account_withdraw.SavingsAccountWithdrawFragment
 import org.mifos.mobile.ui.savings_make_transfer.SavingsMakeTransferFragment
 import org.mifos.mobile.ui.fragments.base.BaseFragment
+import org.mifos.mobile.ui.qr_code_display.QrCodeDisplayComposeFragment
 import org.mifos.mobile.ui.savings_make_transfer.SavingsMakeTransferComposeFragment
-import org.mifos.mobile.utils.Constants
-import org.mifos.mobile.utils.Network
+import org.mifos.mobile.core.common.Network
+import org.mifos.mobile.core.datastore.PreferencesHelper
+import org.mifos.mobile.core.model.entity.accounts.savings.SavingsWithAssociations
+import org.mifos.mobile.core.model.enums.AccountType
+import org.mifos.mobile.core.model.enums.ChargeType
+import org.mifos.mobile.core.model.enums.SavingsAccountState
 import org.mifos.mobile.utils.QrCodeGenerator
 import javax.inject.Inject
 
@@ -47,7 +46,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            viewModel.setSavingsId(arguments?.getLong(Constants.SAVINGS_ID))
+            viewModel.setSavingsId(arguments?.getLong(org.mifos.mobile.core.common.Constants.SAVINGS_ID))
         }
     }
 
@@ -102,7 +101,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
             (activity as BaseActivity?)?.replaceFragment(
                 SavingsMakeTransferComposeFragment.newInstance(
                     viewModel.savingsId,
-                    Constants.TRANSFER_PAY_TO,
+                    org.mifos.mobile.core.common.Constants.TRANSFER_PAY_TO,
                 ),
                 true,
                 R.id.container,
@@ -125,7 +124,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
             (activity as BaseActivity?)?.replaceFragment(
                 SavingsMakeTransferComposeFragment.newInstance(
                     viewModel.savingsId,
-                    Constants.TRANSFER_PAY_FROM,
+                    org.mifos.mobile.core.common.Constants.TRANSFER_PAY_FROM,
                 ),
                 true,
                 R.id.container,
@@ -153,7 +152,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
 
     private fun transactionsClicked() {
         (activity as BaseActivity?)?.replaceFragment(
-            SavingAccountsTransactionFragment.newInstance(viewModel.savingsId),
+            SavingAccountsTransactionComposeFragment.newInstance(viewModel.savingsId),
             true,
             R.id.container,
         )
@@ -174,7 +173,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
             AccountType.SAVINGS,
         )
         (activity as BaseActivity?)?.replaceFragment(
-            QrCodeDisplayFragment.newInstance(
+            QrCodeDisplayComposeFragment.newInstance(
                 accountDetailsInJson,
             ),
             true,
@@ -206,7 +205,7 @@ class SavingAccountsDetailFragment : BaseFragment() {
         fun newInstance(savingsId: Long): SavingAccountsDetailFragment {
             val fragment = SavingAccountsDetailFragment()
             val args = Bundle()
-            args.putLong(Constants.SAVINGS_ID, savingsId)
+            args.putLong(org.mifos.mobile.core.common.Constants.SAVINGS_ID, savingsId)
             fragment.arguments = args
             return fragment
         }

@@ -22,22 +22,21 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
-import org.mifos.mobile.api.local.PreferencesHelper
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
 import org.mifos.mobile.ui.activities.HomeActivity
 import org.mifos.mobile.ui.activities.LoanApplicationActivity
 import org.mifos.mobile.ui.activities.NotificationActivity
 import org.mifos.mobile.ui.activities.base.BaseActivity
+import org.mifos.mobile.ui.beneficiary_list.BeneficiaryListComposeFragment
+import org.mifos.mobile.ui.client_accounts.ClientAccountsComposeFragment
 import org.mifos.mobile.ui.client_charge.ClientChargeComposeFragment
-import org.mifos.mobile.ui.enums.AccountType
-import org.mifos.mobile.ui.enums.ChargeType
-import org.mifos.mobile.ui.fragments.BeneficiaryListFragment
-import org.mifos.mobile.ui.fragments.ClientAccountsFragment
+import org.mifos.mobile.core.model.enums.AccountType
+import org.mifos.mobile.core.model.enums.ChargeType
 import org.mifos.mobile.ui.fragments.base.BaseFragment
 import org.mifos.mobile.ui.savings_make_transfer.SavingsMakeTransferComposeFragment
 import org.mifos.mobile.ui.third_party_transfer.ThirdPartyTransferComposeFragment
 import org.mifos.mobile.ui.user_profile.UserProfileActivity
-import org.mifos.mobile.utils.Constants
+import org.mifos.mobile.core.datastore.PreferencesHelper
 import org.mifos.mobile.utils.MaterialDialog
 import org.mifos.mobile.utils.Toaster
 import javax.inject.Inject
@@ -140,7 +139,7 @@ class HomeOldFragment : BaseFragment(), OnRefreshListener {
         if (!isReceiverRegistered) {
             LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(
                 notificationReceiver,
-                IntentFilter(Constants.NOTIFY_HOME_FRAGMENT),
+                IntentFilter(org.mifos.mobile.core.common.Constants.NOTIFY_HOME_FRAGMENT),
             )
             isReceiverRegistered = true
         }
@@ -167,7 +166,7 @@ class HomeOldFragment : BaseFragment(), OnRefreshListener {
      */
     private fun openAccount(accountType: AccountType?) {
         (activity as BaseActivity?)?.replaceFragment(
-            ClientAccountsFragment.newInstance(accountType),
+            ClientAccountsComposeFragment.newInstance(accountType),
             true,
             R.id.container,
         )
@@ -299,7 +298,7 @@ class HomeOldFragment : BaseFragment(), OnRefreshListener {
      */
     fun beneficiaries() {
         (activity as HomeActivity?)?.replaceFragment(
-            BeneficiaryListFragment.newInstance(),
+            BeneficiaryListComposeFragment.newInstance(),
             true,
             R.id.container,
         )

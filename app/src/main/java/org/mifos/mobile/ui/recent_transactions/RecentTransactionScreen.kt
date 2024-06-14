@@ -1,6 +1,7 @@
 package org.mifos.mobile.ui.recent_transactions
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,14 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -36,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getString
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.mifos.mobile.MifosSelfServiceApp
@@ -47,12 +43,11 @@ import org.mifos.mobile.core.ui.component.MifosErrorComponent
 import org.mifos.mobile.core.ui.component.MifosProgressIndicator
 import org.mifos.mobile.core.ui.component.MifosProgressIndicatorOverlay
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
-import org.mifos.mobile.models.Transaction
-import org.mifos.mobile.models.client.Type
-import org.mifos.mobile.utils.CurrencyUtil
-import org.mifos.mobile.utils.DateHelper
-import org.mifos.mobile.utils.Network
-import org.mifos.mobile.utils.Utils
+import org.mifos.mobile.core.common.utils.CurrencyUtil
+import org.mifos.mobile.core.common.utils.DateHelper
+import org.mifos.mobile.core.common.Network
+import org.mifos.mobile.core.model.entity.Transaction
+import org.mifos.mobile.core.common.utils.Utils
 
 @Composable
 fun RecentTransactionScreen(
@@ -96,55 +91,69 @@ fun RecentTransactionScreen(
         topBarTitleResId = R.string.recent_transactions,
         navigateBack = navigateBack,
         scaffoldContent = { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues = paddingValues)) {
-                when (uiState) {
-                    is RecentTransactionUiState.Error -> {
-                        MifosErrorComponent(
-                            isNetworkConnected = Network.isConnected(context),
-                            isRetryEnabled = true,
-                            onRetry = onRetry
-                        )
-                    }
 
-                    is RecentTransactionUiState.Loading -> {
-                        MifosProgressIndicatorOverlay()
-                    }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .nestedScroll(pullRefreshState.nestedScrollConnection)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-                    is RecentTransactionUiState.Success -> {
-                        if (uiState.transactions.isEmpty()) {
-                            EmptyDataView(
-                                icon = R.drawable.ic_error_black_24dp,
-                                error = R.string.no_transaction,
-                                modifier = Modifier.fillMaxSize()
+                    when (uiState) {
+                        is RecentTransactionUiState.Error -> {
+                            MifosErrorComponent(
+                                isNetworkConnected = Network.isConnected(context),
+                                isRetryEnabled = true,
+                                onRetry = onRetry
                             )
-                        } else {
-                            RecentTransactionsContent(
-                                transactions = uiState.transactions,
-                                isPaginating = isPaginating,
-                                loadMore = loadMore,
-                                canPaginate = uiState.canPaginate
-                            )
+                        }
+
+                        is RecentTransactionUiState.Loading -> {
+                            MifosProgressIndicatorOverlay()
+                        }
+
+                        is RecentTransactionUiState.Success -> {
+                            if (uiState.transactions.isEmpty()) {
+                                EmptyDataView(
+                                    icon = R.drawable.ic_error_black_24dp,
+                                    error = R.string.no_transaction,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                RecentTransactionsContent(
+                                    transactions = uiState.transactions,
+                                    isPaginating = isPaginating,
+                                    loadMore = loadMore,
+                                    canPaginate = uiState.canPaginate
+                                )
+                            }
                         }
                     }
                 }
+                if (pullRefreshState.isRefreshing) {
+                    LaunchedEffect(key1 = true) {
+                        onRefresh()
+                    }
+                }
+                LaunchedEffect(key1 = isRefreshing) {
+                    if (isRefreshing)
+                        pullRefreshState.startRefresh()
+                    else
+                        pullRefreshState.endRefresh()
+                }
+
+                PullToRefreshContainer(
+                    state = pullRefreshState,
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .align(Alignment.TopCenter),
+                )
             }
         }
-    )
-
-    if (pullRefreshState.isRefreshing) {
-        LaunchedEffect(key1 = true) {
-            onRefresh()
-        }
-    }
-    LaunchedEffect(key1 = isRefreshing) {
-        if (isRefreshing)
-            pullRefreshState.startRefresh()
-        else
-            pullRefreshState.endRefresh()
-    }
-
-    PullToRefreshContainer(
-        state = pullRefreshState,
     )
 }
 
@@ -173,7 +182,7 @@ fun RecentTransactionsContent(
             RecentTransactionListItem(transaction)
         }
 
-        if(isPaginating) {
+        if (isPaginating) {
             item {
                 MifosProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
@@ -203,10 +212,15 @@ fun RecentTransactionListItem(transaction: Transaction?) {
                     text = stringResource(
                         id = R.string.string_and_string,
                         transaction?.currency?.displaySymbol ?: transaction?.currency?.code ?: "",
-                        CurrencyUtil.formatCurrency(MifosSelfServiceApp.context, transaction?.amount ?: 0.0,)
+                        CurrencyUtil.formatCurrency(
+                            MifosSelfServiceApp.context,
+                            transaction?.amount ?: 0.0,
+                        )
                     ),
                     style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.weight(1f).alpha(0.7f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(0.7f),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
@@ -220,7 +234,6 @@ fun RecentTransactionListItem(transaction: Transaction?) {
         }
     }
 }
-
 
 class RecentTransactionScreenPreviewProvider : PreviewParameterProvider<RecentTransactionUiState> {
     override val values: Sequence<RecentTransactionUiState>
@@ -248,4 +261,3 @@ private fun RecentTransactionScreenPreview(
         )
     }
 }
-

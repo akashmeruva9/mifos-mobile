@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.mifos.mobile.R
+import org.mifos.mobile.core.model.entity.accounts.savings.TransactionType
+import org.mifos.mobile.core.model.entity.accounts.savings.Transactions
 import org.mifos.mobile.databinding.RowSavingAccountTransactionBinding
-import org.mifos.mobile.models.accounts.savings.TransactionType
-import org.mifos.mobile.models.accounts.savings.Transactions
-import org.mifos.mobile.utils.CurrencyUtil.formatCurrency
-import org.mifos.mobile.utils.DateHelper.getDateAsString
+import org.mifos.mobile.core.common.utils.CurrencyUtil.formatCurrency
+import org.mifos.mobile.core.common.utils.DateHelper.getDateAsString
 import javax.inject.Inject
 
 /**
