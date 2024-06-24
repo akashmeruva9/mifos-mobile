@@ -12,14 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -37,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getString
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.mifos.mobile.MifosSelfServiceApp
@@ -49,7 +44,6 @@ import org.mifos.mobile.core.ui.component.MifosProgressIndicator
 import org.mifos.mobile.core.ui.component.MifosProgressIndicatorOverlay
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
 import org.mifos.mobile.models.Transaction
-import org.mifos.mobile.models.client.Type
 import org.mifos.mobile.utils.CurrencyUtil
 import org.mifos.mobile.utils.DateHelper
 import org.mifos.mobile.utils.Network
@@ -92,7 +86,6 @@ fun RecentTransactionScreen(
 ) {
     val context = LocalContext.current
     val pullRefreshState = rememberPullToRefreshState()
-    val scrollState = rememberScrollState()
 
     MFScaffold(
         topBarTitleResId = R.string.recent_transactions,
@@ -104,8 +97,8 @@ fun RecentTransactionScreen(
                     .fillMaxSize()
                     .nestedScroll(pullRefreshState.nestedScrollConnection)){
                 Column(modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState), verticalArrangement = Arrangement.Center) {
+                    .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center) {
 
                     when (uiState) {
                         is RecentTransactionUiState.Error -> {
@@ -259,4 +252,3 @@ private fun RecentTransactionScreenPreview(
         )
     }
 }
-
