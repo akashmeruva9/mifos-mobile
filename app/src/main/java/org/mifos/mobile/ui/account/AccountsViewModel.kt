@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.mifos.mobile.models.CheckboxStatus
-import org.mifos.mobile.models.accounts.loan.LoanAccount
-import org.mifos.mobile.models.accounts.savings.SavingAccount
-import org.mifos.mobile.models.accounts.share.ShareAccount
-import org.mifos.mobile.repositories.AccountsRepository
-import org.mifos.mobile.repositories.HomeRepository
+import org.mifos.mobile.core.common.Constants
 import org.mifos.mobile.utils.AccountsFilterUtil
-import org.mifos.mobile.utils.Constants
+import org.mifos.mobile.core.data.repositories.AccountsRepository
+import org.mifos.mobile.core.data.repositories.HomeRepository
+import org.mifos.mobile.core.model.entity.CheckboxStatus
+import org.mifos.mobile.core.model.entity.accounts.loan.LoanAccount
+import org.mifos.mobile.core.model.entity.accounts.savings.SavingAccount
+import org.mifos.mobile.core.model.entity.accounts.share.ShareAccount
 import org.mifos.mobile.utils.StatusUtils
 import java.util.*
 import javax.inject.Inject
@@ -110,7 +110,7 @@ class AccountsViewModel @Inject constructor(
             else {
                 _isFiltered.update { false }
                 _filterList.update { checkBoxList }
-                }
+            }
         }
     }
 
@@ -119,13 +119,23 @@ class AccountsViewModel @Inject constructor(
         filterList: List<CheckboxStatus>,
         context: Context
     ): List<LoanAccount> {
-        val newList : MutableList<LoanAccount> = mutableListOf()
-        for( filter in filterList)
-        {
-            if(filter.isChecked)
-                newList.plus( getFilteredLoanAccount(accountsList,filter,AccountsFilterUtil.getFilterStrings(context = context)))
+        val uniqueAccountsMap: MutableMap<String, LoanAccount> = mutableMapOf()
+
+        for (filter in filterList) {
+            if (filter.isChecked) {
+                val filteredAccounts = getFilteredLoanAccount(accountsList, filter, AccountsFilterUtil.getFilterStrings(context = context))
+                for (account in filteredAccounts) {
+                    val identifier = getUniqueIdentifierForLoanAccount(account)
+                    uniqueAccountsMap[identifier] = account
+                }
+            }
         }
-        return newList
+
+        return uniqueAccountsMap.values.toList()
+    }
+
+    fun getUniqueIdentifierForLoanAccount(account: LoanAccount): String {
+        return account.accountNo ?: account.loanProductId.toString()
     }
 
     fun getFilterSavingsAccountList(
@@ -138,7 +148,7 @@ class AccountsViewModel @Inject constructor(
         for( filter in filterList)
         {
             if( filter.isChecked )
-                newList.plus( getFilteredSavingsAccount(accountsList,filter, AccountsFilterUtil.getFilterStrings(context = context)))
+                newList.addAll( getFilteredSavingsAccount(accountsList,filter, AccountsFilterUtil.getFilterStrings(context = context)))
         }
         return newList
     }
@@ -152,7 +162,7 @@ class AccountsViewModel @Inject constructor(
         for( filter in filterList)
         {
             if(filter.isChecked)
-                newList.plus(getFilteredShareAccount(accountsList,filter, AccountsFilterUtil.getFilterStrings(context = context)))
+                newList.addAll(getFilteredShareAccount(accountsList,filter, AccountsFilterUtil.getFilterStrings(context = context)))
         }
         return newList
     }
@@ -382,7 +392,7 @@ class AccountsViewModel @Inject constructor(
         accounts: List<ShareAccount?>?,
         status: CheckboxStatus?,
         accountsFilterUtil: AccountsFilterUtil
-    ): Collection<ShareAccount?>? {
+    ): Collection<ShareAccount> {
         return Observable.fromIterable(accounts)
             .filter(
                 Predicate { (_, _, _, _, _, _, status1) ->
@@ -406,7 +416,7 @@ class AccountsViewModel @Inject constructor(
                     }
                     false
                 },
-            ).toList().blockingGet()
+            ).toList().blockingGet().filterNotNull()
     }
 
 }
