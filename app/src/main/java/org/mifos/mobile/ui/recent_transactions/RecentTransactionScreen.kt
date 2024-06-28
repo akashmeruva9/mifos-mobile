@@ -12,14 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -99,10 +95,13 @@ fun RecentTransactionScreen(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .nestedScroll(pullRefreshState.nestedScrollConnection)){
-                Column(modifier = Modifier
-                    .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center) {
+                    .nestedScroll(pullRefreshState.nestedScrollConnection)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center
+                ) {
 
                     when (uiState) {
                         is RecentTransactionUiState.Error -> {
@@ -149,7 +148,9 @@ fun RecentTransactionScreen(
 
                 PullToRefreshContainer(
                     state = pullRefreshState,
-                    modifier = Modifier.padding(top=24.dp).align(Alignment.TopCenter),
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .align(Alignment.TopCenter),
                 )
             }
         }
@@ -181,7 +182,7 @@ fun RecentTransactionsContent(
             RecentTransactionListItem(transaction)
         }
 
-        if(isPaginating) {
+        if (isPaginating) {
             item {
                 MifosProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
@@ -211,10 +212,15 @@ fun RecentTransactionListItem(transaction: Transaction?) {
                     text = stringResource(
                         id = R.string.string_and_string,
                         transaction?.currency?.displaySymbol ?: transaction?.currency?.code ?: "",
-                        CurrencyUtil.formatCurrency(MifosSelfServiceApp.context, transaction?.amount ?: 0.0,)
+                        CurrencyUtil.formatCurrency(
+                            MifosSelfServiceApp.context,
+                            transaction?.amount ?: 0.0,
+                        )
                     ),
                     style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.weight(1f).alpha(0.7f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(0.7f),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
@@ -228,7 +234,6 @@ fun RecentTransactionListItem(transaction: Transaction?) {
         }
     }
 }
-
 
 class RecentTransactionScreenPreviewProvider : PreviewParameterProvider<RecentTransactionUiState> {
     override val values: Sequence<RecentTransactionUiState>
