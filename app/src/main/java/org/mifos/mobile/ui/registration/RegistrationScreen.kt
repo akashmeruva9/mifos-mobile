@@ -88,33 +88,17 @@ fun RegistrationScreen(
         uiState = uiState,
         onVerified = onVerified,
         navigateBack = navigateBack,
-        register = { account, username, firstname, lastname, phoneNumber, email, password, confirmPassword, authenticationMode, countryCode ->
-
-            val error = areFieldsValidated(
-                context = context,
-                accountNumberContent = account,
-                usernameContent = username,
-                firstNameContent = firstname,
-                lastNameContent = lastname,
-                phoneNumberContent = phoneNumber,
-                emailContent = email,
-                passwordContent = password,
-                confirmPasswordContent = confirmPassword
+        register = { account, username, firstname, lastname, phoneNumber, email, password, authenticationMode, countryCode ->
+            viewModel.registerUser(
+                accountNumber = account,
+                authenticationMode = authenticationMode,
+                email = email,
+                firstName = firstname,
+                lastName = lastname,
+                mobileNumber = "$countryCode$phoneNumber",
+                password = password,
+                username = username
             )
-
-            if (error == "") {
-                viewModel.registerUser(
-                    accountNumber = account,
-                    authenticationMode = authenticationMode,
-                    email = email,
-                    firstName = firstname,
-                    lastName = lastname,
-                    mobileNumber = "$countryCode$phoneNumber",
-                    password = password,
-                    username = username
-                )
-            }
-            error
         },
         progress = { updatePasswordStrengthView(it, context) }
     )
@@ -126,7 +110,7 @@ fun RegistrationScreen(
     uiState: RegistrationUiState,
     onVerified: () -> Unit,
     navigateBack: () -> Unit,
-    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, confirmPassword: String, authMode: String, countryCode: String) -> String,
+    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, authMode: String, countryCode: String) -> Unit,
     progress: (String) -> Float
 ) {
     val context = LocalContext.current
@@ -174,10 +158,12 @@ fun RegistrationScreen(
 
 @Composable
 fun RegistrationContent(
-    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, confirmPassword: String, authMode: String, countryCode: String) -> String,
+    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, authMode: String, countryCode: String) -> Unit,
     progress: (String) -> Float,
     snackBarHostState: SnackbarHostState,
 ) {
+    val context = LocalContext.current
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var accountNumber by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -371,19 +357,30 @@ fun RegistrationContent(
 
         Button(
             onClick = {
-                val error = register.invoke(
-                    accountNumber.text,
-                    username.text,
-                    firstName.text,
-                    lastName.text,
-                    phoneNumber.text,
-                    email.text,
-                    password.text,
-                    confirmPassword.text,
-                    authenticationMode,
-                    countryCode
+                val error = areFieldsValidated(
+                    context = context,
+                    accountNumberContent = accountNumber.text,
+                    usernameContent = username.text,
+                    firstNameContent = firstName.text,
+                    lastNameContent = lastName.text,
+                    phoneNumberContent = phoneNumber.text,
+                    emailContent = email.text,
+                    passwordContent = password.text,
+                    confirmPasswordContent = confirmPassword.text,
                 )
-                if (error != "") {
+                if (error == "") {
+                    register.invoke(
+                         accountNumber.text,
+                         username.text,
+                         firstName.text,
+                         lastName.text,
+                         phoneNumber.text,
+                         email.text,
+                         password.text,
+                        authenticationMode,
+                        countryCode
+                    )
+                }else {
                     coroutineScope.launch {
                         snackBarHostState.showSnackbar(
                             message = error,
@@ -559,12 +556,12 @@ fun updatePasswordStrengthView(password: String, context: Context): Float {
 class RegistrationScreenPreviewProvider : PreviewParameterProvider<RegistrationUiState> {
 
     override val values: Sequence<RegistrationUiState>
-        get() = sequenceOf(
-            RegistrationUiState.Loading,
-            RegistrationUiState.Error(1),
-            RegistrationUiState.Success,
-            RegistrationUiState.Initial,
-        )
+    get() = sequenceOf(
+        RegistrationUiState.Loading,
+        RegistrationUiState.Error(1),
+        RegistrationUiState.Success,
+        RegistrationUiState.Initial,
+    )
 }
 
 @Preview(showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -577,7 +574,7 @@ private fun RegistrationScreenPreview(
             registrationUiState,
             {},
             {},
-            { _, _, _, _, _, _, _, _, _, _ -> "" },
+            { _, _, _, _, _, _, _, _, _ -> "" },
             { 0f }
         )
     }
