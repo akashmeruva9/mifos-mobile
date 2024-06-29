@@ -4,8 +4,6 @@ import android.os.Bundle
 import org.mifos.mobile.R
 import org.mifos.mobile.databinding.ActivityRegistrationBinding
 import org.mifos.mobile.ui.activities.base.BaseActivity
-import org.mifos.mobile.ui.registration.RegistrationFragment
-import org.mifos.mobile.utils.MaterialDialog
 
 class RegistrationActivity : BaseActivity() {
 
@@ -15,7 +13,7 @@ class RegistrationActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        replaceFragment(RegistrationFragment.newInstance(), false, R.id.container)
+        replaceFragment(RegistrationComposeFragment.newInstance(), false, R.id.container)
     }
 
 }

@@ -1,10 +1,12 @@
 package org.mifos.mobile.ui.registration
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,11 +25,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +41,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,25 +49,130 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.owlbuddy.www.countrycodechooser.CountryCodeChooser
 import com.owlbuddy.www.countrycodechooser.utils.enums.CountryCodeType
+import kotlinx.coroutines.launch
 import org.mifos.mobile.R
+import org.mifos.mobile.core.ui.component.MFScaffold
 import org.mifos.mobile.core.ui.component.MifosMobileIcon
 import org.mifos.mobile.core.ui.component.MifosOutlinedTextField
+import org.mifos.mobile.core.ui.component.MifosProgressIndicatorOverlay
+import org.mifos.mobile.core.ui.theme.MifosMobileTheme
+import org.mifos.mobile.utils.RegistrationUiState
 
 /**
  * @author pratyush
  * @since 28/12/2023
  */
+@Composable
+fun RegistrationScreen(
+    viewModel: RegistrationViewModel = hiltViewModel(),
+    onVerified: () -> Unit,
+    navigateBack: () -> Unit
+) {
+
+    val context = LocalContext.current
+    val uiState by viewModel.registrationUiState.collectAsStateWithLifecycle()
+
+    RegistrationScreen(
+        uiState = uiState,
+        onVerified = onVerified,
+        navigateBack = navigateBack,
+        register = { account, username, firstname, lastname, phoneNumber, email, password, confirmPassword, authenticationMode, countryCode ->
+
+            val error = viewModel.areFieldsValidated(
+                context = context,
+                accountNumberContent = account,
+                usernameContent = username,
+                firstNameContent = firstname,
+                lastNameContent = lastname,
+                phoneNumberContent = phoneNumber,
+                emailContent = email,
+                passwordContent = password,
+                confirmPasswordContent = confirmPassword
+            )
+
+            if (error == "") {
+                viewModel.registerUser(
+                    accountNumber = account,
+                    authenticationMode = authenticationMode,
+                    email = email,
+                    firstName = firstname,
+                    lastName = lastname,
+                    mobileNumber = "$countryCode$phoneNumber",
+                    password = password,
+                    username = username
+                )
+            }
+            error
+        },
+        progress = { viewModel.updatePasswordStrengthView(it, context) }
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RegistrationScreen(
-    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, authMode: String, countryCode: String) -> Unit,
-    progress: (String) -> Float,
+    uiState: RegistrationUiState,
+    onVerified: () -> Unit,
+    navigateBack: () -> Unit,
+    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, confirmPassword: String, authMode: String, countryCode: String) -> String,
+    progress: (String) -> Float
 ) {
+    val context = LocalContext.current
+    val snackBarHostState = remember {
+        SnackbarHostState()
+    }
 
+    MFScaffold(
+        topBarTitleResId = R.string.register,
+        navigateBack = navigateBack,
+        scaffoldContent = { contentPadding ->
+
+            Box(
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+            ) {
+
+                RegistrationContent(
+                    register = register,
+                    progress = progress,
+                    snackBarHostState = snackBarHostState
+                )
+
+                when (uiState) {
+
+                    RegistrationUiState.Initial -> Unit
+
+                    is RegistrationUiState.Error -> {
+                        Toast.makeText(context, uiState.exception, Toast.LENGTH_SHORT).show()
+                    }
+
+                    RegistrationUiState.Loading -> {
+                        MifosProgressIndicatorOverlay()
+                    }
+
+                    RegistrationUiState.Success -> {
+                        onVerified()
+                    }
+                }
+            }
+        }, snackbarHost = { SnackbarHost(hostState = snackBarHostState) }
+    )
+}
+
+@Composable
+fun RegistrationContent(
+    register: (accountNumber: String, username: String, firstName: String, lastName: String, phoneNumber: String, email: String, password: String, confirmPassword: String, authMode: String, countryCode: String) -> String,
+    progress: (String) -> Float,
+    snackBarHostState: SnackbarHostState,
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var accountNumber by rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -100,7 +212,8 @@ fun RegistrationScreen(
     val progressIndicator = progress(password.text)
     var passwordVisibility: Boolean by remember { mutableStateOf(false) }
     var confirmPasswordVisibility: Boolean by remember { mutableStateOf(false) }
-    var scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -165,7 +278,8 @@ fun RegistrationScreen(
                 value = phoneNumber,
                 onValueChange = { phoneNumber = it },
                 label = R.string.phone_number,
-                supportingText = ""
+                supportingText = "",
+                keyboardType = KeyboardType.Number
             )
         }
         MifosOutlinedTextField(
@@ -252,7 +366,7 @@ fun RegistrationScreen(
 
         Button(
             onClick = {
-                register.invoke(
+                val error = register.invoke(
                     accountNumber.text,
                     username.text,
                     firstName.text,
@@ -260,9 +374,20 @@ fun RegistrationScreen(
                     phoneNumber.text,
                     email.text,
                     password.text,
+                    confirmPassword.text,
                     authenticationMode,
                     countryCode
                 )
+                if (error != "") {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = error,
+                            actionLabel = "Ok",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+
                 keyboardController?.hide()
             },
             modifier = Modifier
@@ -280,8 +405,29 @@ fun RegistrationScreen(
     }
 }
 
+class RegistrationScreenPreviewProvider : PreviewParameterProvider<RegistrationUiState> {
+
+    override val values: Sequence<RegistrationUiState>
+        get() = sequenceOf(
+            RegistrationUiState.Loading,
+            RegistrationUiState.Error(1),
+            RegistrationUiState.Success,
+            RegistrationUiState.Initial,
+        )
+}
+
 @Preview(showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun RegistrationScreenPreview() {
-    RegistrationScreen({ _, _, _, _, _, _, _, _, _ -> }, { 0f })
+private fun RegistrationScreenPreview(
+    @PreviewParameter(RegistrationScreenPreviewProvider::class) registrationUiState: RegistrationUiState
+) {
+    MifosMobileTheme {
+        RegistrationScreen(
+            registrationUiState,
+            {},
+            {},
+            { _, _, _, _, _, _, _, _, _, _ -> "" },
+            { 0f }
+        )
+    }
 }
