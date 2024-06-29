@@ -1,5 +1,6 @@
 package org.mifos.mobile.ui.registration
 
+import android.content.Context
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.border
@@ -24,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -52,6 +54,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.util.PatternsCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.owlbuddy.www.countrycodechooser.CountryCodeChooser
@@ -63,6 +67,7 @@ import org.mifos.mobile.core.ui.component.MifosMobileIcon
 import org.mifos.mobile.core.ui.component.MifosOutlinedTextField
 import org.mifos.mobile.core.ui.component.MifosProgressIndicatorOverlay
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
+import org.mifos.mobile.utils.PasswordStrength
 import org.mifos.mobile.utils.RegistrationUiState
 
 /**
@@ -85,7 +90,7 @@ fun RegistrationScreen(
         navigateBack = navigateBack,
         register = { account, username, firstname, lastname, phoneNumber, email, password, confirmPassword, authenticationMode, countryCode ->
 
-            val error = viewModel.areFieldsValidated(
+            val error = areFieldsValidated(
                 context = context,
                 accountNumberContent = account,
                 usernameContent = username,
@@ -111,7 +116,7 @@ fun RegistrationScreen(
             }
             error
         },
-        progress = { viewModel.updatePasswordStrengthView(it, context) }
+        progress = { updatePasswordStrengthView(it, context) }
     )
 }
 
@@ -395,13 +400,159 @@ fun RegistrationContent(
                 .padding(start = 16.dp, end = 16.dp, top = 4.dp),
             contentPadding = PaddingValues(12.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSystemInDarkTheme()) Color(
-                    0xFF9bb1e3
-                ) else Color(0xFF325ca8)
+                containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Text(text = stringResource(id = R.string.register))
         }
+    }
+}
+
+fun isInputFieldBlank(fieldText: String): Boolean {
+    return fieldText.trim().isEmpty()
+}
+fun isPhoneNumberValid(fieldText: String?): Boolean {
+    if (fieldText.isNullOrBlank()) {
+        return false
+    }
+
+    val phoneNumberPattern = "^\\+?[0-9]{10,15}\$"
+    val regex = phoneNumberPattern.toRegex()
+    return regex.matches(fieldText.trim())
+}
+
+fun isInputLengthInadequate(fieldText: String): Boolean {
+    return fieldText.trim().length < 6
+}
+
+fun inputHasSpaces(fieldText: String): Boolean {
+    return fieldText.trim().contains(" ")
+}
+
+fun hasLeadingTrailingSpaces(fieldText: String): Boolean {
+    return fieldText.trim().length < fieldText.length
+}
+
+fun isEmailInvalid(emailText: String): Boolean {
+    return !PatternsCompat.EMAIL_ADDRESS.matcher(emailText.trim()).matches()
+}
+fun areFieldsValidated(
+    context: Context,
+    accountNumberContent: String,
+    usernameContent: String,
+    firstNameContent: String,
+    lastNameContent: String,
+    phoneNumberContent: String,
+    emailContent: String,
+    passwordContent: String,
+    confirmPasswordContent: String,
+): String {
+    return when {
+        isInputFieldBlank(accountNumberContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.account_number)
+            )
+            errorMessage
+        }
+
+        isInputFieldBlank(usernameContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.username)
+            )
+            errorMessage
+        }
+
+        isInputLengthInadequate(usernameContent) -> {
+            val errorMessage = context.getString(R.string.error_username_greater_than_six)
+            errorMessage
+        }
+
+        inputHasSpaces(usernameContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_cannot_contain_spaces,
+                context.getString(R.string.username),
+                context.getString(R.string.not_contain_username),
+            )
+            errorMessage
+        }
+
+        isInputFieldBlank(firstNameContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.first_name)
+            )
+            errorMessage
+        }
+
+        isInputFieldBlank(lastNameContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.last_name)
+            )
+            errorMessage
+        }
+
+        !isPhoneNumberValid(phoneNumberContent) -> {
+            val errorMessage = context.getString(R.string.invalid_phn_number)
+            errorMessage
+        }
+
+        isInputFieldBlank(emailContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.email)
+            )
+            errorMessage
+        }
+
+        isInputFieldBlank(passwordContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_blank,
+                context.getString(R.string.password)
+            )
+            errorMessage
+        }
+
+        hasLeadingTrailingSpaces(passwordContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_cannot_contain_leading_or_trailing_spaces,
+                context.getString(R.string.password),
+            )
+            errorMessage
+        }
+
+        isEmailInvalid(emailContent) -> {
+            val errorMessage = ContextCompat.getString(context, R.string.error_invalid_email)
+            errorMessage
+        }
+
+        isInputLengthInadequate(passwordContent) -> {
+            val errorMessage = context.getString(
+                R.string.error_validation_minimum_chars,
+                context.getString(R.string.password),
+                context.resources.getInteger(R.integer.password_minimum_length),
+            )
+            errorMessage
+        }
+
+        passwordContent != confirmPasswordContent -> {
+            val errorMessage = context.getString(R.string.error_password_not_match)
+            errorMessage
+        }
+
+        else -> ""
+    }
+}
+
+fun updatePasswordStrengthView(password: String, context: Context): Float {
+    val str = PasswordStrength.calculateStrength(password)
+    return when (str.getText(context)) {
+        ContextCompat.getString(context, R.string.password_strength_weak) -> 0.25f
+        ContextCompat.getString(context, R.string.password_strength_medium) -> 0.5f
+        ContextCompat.getString(context, R.string.password_strength_strong) -> 0.75f
+        else -> 1f
     }
 }
 

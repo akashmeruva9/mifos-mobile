@@ -4,12 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
-import org.mifos.mobile.core.ui.theme.MifosMobileTheme
+import org.mifos.mobile.core.ui.component.mifosComposeView
 import org.mifos.mobile.ui.activities.base.BaseActivity
 import org.mifos.mobile.ui.fragments.base.BaseFragment
 
@@ -19,23 +16,16 @@ import org.mifos.mobile.ui.fragments.base.BaseFragment
 @AndroidEntryPoint
 class RegistrationComposeFragment : BaseFragment() {
 
-    private lateinit var viewModel: RegistrationViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        viewModel = ViewModelProvider(this)[RegistrationViewModel::class.java]
-        return ComposeView(requireContext()).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                MifosMobileTheme {
-                    RegistrationScreen(
-                        onVerified = { showRegisteredSuccessfully() },
-                        navigateBack = { activity?.onBackPressed() },
-                    )
-                }
-            }
+        return mifosComposeView(requireContext()) {
+            RegistrationScreen(
+                onVerified = { showRegisteredSuccessfully() },
+                navigateBack = { activity?.onBackPressed() },
+            )
         }
     }
 
