@@ -150,7 +150,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 
-    // Unit tests dependencies  
+    // Unit tests dependencies
     testImplementation(libs.junit)
     testImplementation("org.mockito:mockito-core:5.4.0")
     implementation("org.mockito:mockito-core:5.4.0")
@@ -175,6 +175,7 @@ dependencies {
     api(libs.androidx.activity.compose)
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.material3)
+    api(libs.androidx.compose.material)
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.foundation.layout)
     api(libs.androidx.compose.material.iconsExtended)
@@ -188,7 +189,15 @@ dependencies {
     // google maps
     implementation ("com.google.maps.android:maps-compose:4.4.1")
 
+    //image cropper
+    implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
 
+    // Google Bar code scanner
+    implementation(libs.google.app.code.scanner)
+
+    //cameraX
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.core)
 }
-
-
