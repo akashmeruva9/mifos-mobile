@@ -77,7 +77,6 @@ dependencies {
     implementation(projects.core.datastore)
     implementation(projects.ui)
     implementation(projects.feature.loan)
-
     implementation(projects.feature.registration)
     implementation(projects.feature.beneficiary)
     implementation(projects.feature.guarantor)
@@ -176,7 +175,6 @@ dependencies {
     api(libs.androidx.activity.compose)
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.material3)
-    api(libs.androidx.compose.material)
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.foundation.layout)
     api(libs.androidx.compose.material.iconsExtended)
@@ -190,17 +188,7 @@ dependencies {
     // google maps
     implementation ("com.google.maps.android:maps-compose:4.4.1")
 
-    //image cropper
-    implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
 
-    // Google Bar code scanner
-    implementation(libs.google.app.code.scanner)
-
-    //cameraX
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
-    implementation(libs.androidx.camera.core)
 }
 
 
