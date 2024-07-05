@@ -86,9 +86,8 @@ dependencies {
     implementation(projects.feature.qr)
     implementation(projects.feature.transferProcess)
     implementation(projects.feature.account)
+    implementation(projects.feature.clientCharge)
     implementation(projects.feature.recentTransaction)
-
-
 
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation(libs.androidx.lifecycle.ktx)
