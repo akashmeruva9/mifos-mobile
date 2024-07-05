@@ -17,10 +17,6 @@ import org.mifos.mobile.ui.activities.base.BaseActivity
 @AndroidEntryPoint
 class LoginActivity : BaseActivity() {
 
-//    private val viewModel: LoginViewModel by viewModels()
-//    private lateinit var usernameContent: String
-//    private lateinit var passwordContent: String
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
