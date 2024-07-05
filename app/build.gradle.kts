@@ -76,8 +76,8 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.datastore)
     implementation(projects.ui)
-
     implementation(projects.feature.loan)
+    implementation(projects.feature.login)
     implementation(projects.feature.registration)
     implementation(projects.feature.beneficiary)
     implementation(projects.feature.guarantor)
@@ -85,8 +85,7 @@ dependencies {
     implementation(projects.feature.qr)
     implementation(projects.feature.transferProcess)
     implementation(projects.feature.clientCharge)
-
-
+    implementation(projects.feature.account)
 
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation(libs.androidx.lifecycle.ktx)
