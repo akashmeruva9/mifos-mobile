@@ -76,6 +76,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.datastore)
     implementation(projects.ui)
+
     implementation(projects.feature.loan)
     implementation(projects.feature.login)
     implementation(projects.feature.registration)
@@ -84,8 +85,17 @@ dependencies {
     implementation(projects.feature.savings)
     implementation(projects.feature.qr)
     implementation(projects.feature.transferProcess)
-    implementation(projects.feature.clientCharge)
     implementation(projects.feature.account)
+    implementation(projects.feature.clientCharge)
+    implementation(projects.feature.recentTransaction)
+    implementation(projects.feature.thirdPartyTransfer)
+    implementation(projects.feature.help)
+    implementation(projects.feature.notification)
+    implementation(projects.feature.location)
+    implementation(projects.feature.about)
+    implementation(projects.feature.settings)
+    implementation(projects.feature.updatePassword)
+
 
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
     implementation(libs.androidx.lifecycle.ktx)
@@ -93,7 +103,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.preference)
-    implementation(libs.play.services.maps)
+
 
     // DBFlow
     implementation(libs.dbflow)
@@ -191,8 +201,6 @@ dependencies {
     debugApi(libs.androidx.compose.ui.tooling)
     api(libs.androidx.hilt.navigation.compose)
 
-    // google maps
-    implementation ("com.google.maps.android:maps-compose:4.4.1")
 
     //image cropper
     implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
