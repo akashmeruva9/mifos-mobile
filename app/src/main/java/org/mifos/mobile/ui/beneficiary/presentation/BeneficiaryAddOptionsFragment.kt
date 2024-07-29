@@ -30,6 +30,8 @@ import org.mifos.mobile.utils.Toaster
 /**
  * Created by dilpreet on 5/7/17.
  */
+// File Can be deleted After fully implementing compose navigation.
+// Has Instances Left out in Add Beneficiary Activity and ThirdPartyTransfer Fragment
 @AndroidEntryPoint
 class BeneficiaryAddOptionsFragment : BaseFragment() {
 
@@ -51,16 +53,15 @@ class BeneficiaryAddOptionsFragment : BaseFragment() {
             setContent {
 
                 MifosMobileTheme {
-                    BeneficiaryScreen(
-                        topAppbarNavigateback = {
-                            requireActivity().onBackPressedDispatcher.onBackPressed()
-                        },
-                        addiconClicked = { addManually() },
-                        scaniconClicked = { addUsingQrCode() },
-                        uploadIconClicked = { addByImportingQrCode() },
-                    )
+//                    BeneficiaryScreen(
+//                        topAppbarNavigateback = {
+//                            requireActivity().onBackPressedDispatcher.onBackPressed()
+//                        },
+//                        addiconClicked = { addManually() },
+//                        scaniconClicked = { addUsingQrCode() },
+//                        uploadIconClicked = { addByImportingQrCode() },
+//                    )
                 }
-
             }
 
         }

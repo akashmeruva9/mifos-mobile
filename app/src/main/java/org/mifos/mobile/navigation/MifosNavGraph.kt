@@ -2,17 +2,18 @@ package org.mifos.mobile.navigation
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import org.mifos.mobile.feature.auth.navigation.AuthenticationNavigation
 import org.mifos.mobile.feature.auth.navigation.authenticationNavGraph
-import org.mifos.mobile.feature.guarantor.navigation.GuarantorNavigation
-import org.mifos.mobile.feature.guarantor.navigation.GuarantorRoute
+import org.mifos.mobile.feature.beneficiary.navigation.beneficiaryNavGraph
 import org.mifos.mobile.feature.guarantor.navigation.guarantorNavGraph
 import org.mifos.mobile.ui.activities.PassCodeActivity
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun RootNavGraph(
     navController: NavHostController,
@@ -39,6 +40,14 @@ fun RootNavGraph(
             navController = navController,
             navigateBack = navigateBack,
             loanId = loanId
+        )
+
+        beneficiaryNavGraph(
+            navController = navController,
+            navigateBack =  { navController.popBackStack() },
+            startDestination = nestedStartDestination,
+            openQrImportScreen = {},
+            openQrReaderScreen = {}
         )
     }
 }
