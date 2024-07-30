@@ -9,8 +9,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import org.mifos.mobile.feature.auth.navigation.authenticationNavGraph
+import org.mifos.mobile.feature.beneficiary.navigation.BeneficiaryNavigation
 import org.mifos.mobile.feature.beneficiary.navigation.beneficiaryNavGraph
 import org.mifos.mobile.feature.guarantor.navigation.guarantorNavGraph
+import org.mifos.mobile.feature.qr.navigation.QrNavigation
+import org.mifos.mobile.feature.qr.navigation.qrNavGraph
 import org.mifos.mobile.ui.activities.PassCodeActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -46,8 +49,31 @@ fun RootNavGraph(
             navController = navController,
             navigateBack =  { navController.popBackStack() },
             startDestination = nestedStartDestination,
-            openQrImportScreen = {},
-            openQrReaderScreen = {}
+            openQrImportScreen = {
+                navController.navigate(
+                    QrNavigation.Import.route
+                )
+            },
+            openQrReaderScreen = {
+                navController.navigate(
+                    QrNavigation.Reader.route
+                )
+            }
+        )
+
+        qrNavGraph(
+            navController = navController,
+            navigateBack = { navController.popBackStack() },
+            startDestination = nestedStartDestination,
+            qrData = null,
+            openBeneficiaryApplication = {
+                beneficiary, beneficiaryState ->
+                navController.navigate(
+                BeneficiaryNavigation.BeneficiaryApplication(
+                        beneficiaryState, beneficiary
+                    ).route
+                )
+            }
         )
     }
 }
