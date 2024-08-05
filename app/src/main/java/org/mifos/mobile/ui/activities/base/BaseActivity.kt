@@ -16,7 +16,7 @@ import com.mifos.mobile.passcode.BasePassCodeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
 import org.mifos.mobile.core.common.utils.LanguageHelper
-import org.mifos.mobile.ui.activities.PassCodeActivity
+import org.mifos.mobile.ui.activities.PassCodeComposeActivity
 import org.mifos.mobile.ui.views.BaseActivityCallback
 
 /**
@@ -166,7 +166,7 @@ open class BaseActivity : BasePassCodeActivity(), BaseActivityCallback {
     }
 
     override fun getPassCodeClass(): Class<*> {
-        return PassCodeActivity::class.java
+        return PassCodeComposeActivity::class.java
     }
 
     override fun attachBaseContext(base: Context) {

@@ -24,6 +24,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.navigation.NavigationView
+import com.mifos.compose.utility.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import org.mifos.mobile.R
 import org.mifos.mobile.databinding.ActivityHomeBinding
@@ -258,6 +259,7 @@ class HomeActivity :
             .setIcon(R.drawable.ic_logout)
             .setPositiveButton(getString(R.string.logout)) { _, _ ->
                 preferencesHelper?.clear()
+                PreferenceManager(this).hasPasscode = false
                 val i = Intent(this@HomeActivity, LoginActivity::class.java)
                 i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(i)

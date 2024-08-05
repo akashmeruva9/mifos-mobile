@@ -14,7 +14,7 @@ import org.mifos.mobile.feature.beneficiary.navigation.beneficiaryNavGraph
 import org.mifos.mobile.feature.guarantor.navigation.guarantorNavGraph
 import org.mifos.mobile.feature.qr.navigation.QrNavigation
 import org.mifos.mobile.feature.qr.navigation.qrNavGraph
-import org.mifos.mobile.ui.activities.PassCodeActivity
+import org.mifos.mobile.ui.activities.PassCodeComposeActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -79,7 +79,7 @@ fun RootNavGraph(
 }
 
 private fun startPassCodeActivity(context: Context) {
-    val intent = Intent(context, PassCodeActivity::class.java)
+    val intent = Intent(context, PassCodeComposeActivity::class.java)
     intent.putExtra(org.mifos.mobile.core.common.Constants.INTIAL_LOGIN, true)
     context.startActivity(intent)
 }

@@ -11,7 +11,7 @@ import org.mifos.mobile.core.ui.component.mifosComposeView
 import org.mifos.mobile.core.ui.theme.MifosMobileTheme
 import org.mifos.mobile.feature.settings.SettingsScreen
 import org.mifos.mobile.ui.activities.HomeActivity
-import org.mifos.mobile.ui.activities.PassCodeActivity
+import org.mifos.mobile.ui.activities.PassCodeComposeActivity
 import org.mifos.mobile.ui.activities.base.BaseActivity
 import org.mifos.mobile.ui.fragments.base.BaseFragment
 import org.mifos.mobile.ui.login.LoginActivity
@@ -54,7 +54,7 @@ class SettingsComposeFragment : BaseFragment() {
     }
 
     private fun changePasscode(passcode: String) {
-        val intent = Intent(activity, PassCodeActivity::class.java).apply {
+        val intent = Intent(activity, PassCodeComposeActivity::class.java).apply {
             putExtra(org.mifos.mobile.core.common.Constants.CURR_PASSWORD, passcode)
             putExtra(org.mifos.mobile.core.common.Constants.IS_TO_UPDATE_PASS_CODE, true)
         }

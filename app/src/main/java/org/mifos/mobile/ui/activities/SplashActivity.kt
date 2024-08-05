@@ -2,7 +2,7 @@ package org.mifos.mobile.ui.activities
 
 import android.content.Intent
 import android.os.Bundle
-import com.mifos.mobile.passcode.utils.PasscodePreferencesHelper
+import com.mifos.compose.utility.PreferenceManager
 import org.mifos.mobile.ui.activities.base.BaseActivity
 import org.mifos.mobile.ui.login.LoginActivity
 import org.mifos.mobile.core.common.Constants
@@ -12,14 +12,14 @@ import org.mifos.mobile.core.common.Constants
 */
 class SplashActivity : BaseActivity() {
 
-    private var passcodePreferencesHelper: PasscodePreferencesHelper? = null
+    private var passcodePreferencesHelper: PreferenceManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val intent: Intent?
         super.onCreate(savedInstanceState)
-        passcodePreferencesHelper = PasscodePreferencesHelper(this)
-        if (passcodePreferencesHelper?.passCode?.isNotEmpty() == true) {
-            intent = Intent(this, PassCodeActivity::class.java)
+        passcodePreferencesHelper = PreferenceManager(this)
+        if (passcodePreferencesHelper?.hasPasscode == true) {
+            intent = Intent(this, PassCodeComposeActivity::class.java)
             intent.putExtra(Constants.INTIAL_LOGIN, true)
         } else {
             intent = Intent(this, LoginActivity::class.java)

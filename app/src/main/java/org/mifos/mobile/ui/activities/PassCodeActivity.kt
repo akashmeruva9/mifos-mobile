@@ -1,5 +1,6 @@
 package org.mifos.mobile.ui.activities
 
+/*
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -149,3 +150,4 @@ class PassCodeActivity : MifosPassCodeActivity() {
         super.onResume()
     }
 }
+ */

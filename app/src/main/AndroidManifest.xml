@@ -69,7 +69,7 @@
             android:label="@string/saving_account_details"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.activities.PassCodeActivity"
+            android:name=".ui.activities.PassCodeComposeActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"

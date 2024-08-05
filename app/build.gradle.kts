@@ -201,7 +201,6 @@ dependencies {
     debugApi(libs.androidx.compose.ui.tooling)
     api(libs.androidx.hilt.navigation.compose)
 
-
     //image cropper
     implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
 
@@ -213,4 +212,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.core)
+
+    // Mifos Passcode
+    implementation ("com.github.openMF.mifos-passcode:compose:1.0.3")
 }
